@@ -1,0 +1,34 @@
+.button{
+	border:1px solid;
+	border-radius:4px;
+	width:13vh;
+	height:5vh;
+	@extend .flexCenter;
+	font-size:1vh;
+	margin-right: 15px;
+	cursor:pointer;
+	&.save{
+		background:$blue;
+		color:#fff;
+		border-color:$blue;
+		&:hover{
+			background:$hoverBlue
+		}
+	}
+	&.file{
+		background:$blue;
+		color:#fff;
+		border-color:$blue;
+		height:3.5vh;
+		&:hover{
+			background:$hoverBlue
+		}
+	}
+	&.export{
+		background:$gray;
+		border-color:$gray;
+		&:hover{
+			background:$hoverGray
+		}
+	}
+}
