@@ -16,7 +16,7 @@
 		<div class="form-item">
 			<span>预览：</span>
 			<div class="form-input video">
-				<video :src="preview" controls class="form-input-item">
+				<video :src="preview" controls class="form-input-item" id="video">
 					
 				</video>
 			</div>
@@ -24,24 +24,15 @@
 		<div class="form-item">
 			<span>类型：</span>
 			<div class="form-input">
-				<!-- <select name="type" class="form-input-item" @change="changeType">
-					<option :value="item.value" v-for="item in typeList" :key="item.value"></option>
-				</select> -->
 				<meSelect
 					:optionList="typeList"
-					
 				>
-					
 				</meSelect>
 			</div>
 		</div>
 		<div class="form-item">
 			<span>标签：</span>
 			<div class="form-input">
-				<!-- <select name="tag" mulite class="form-input-item" @change="changeTag">
-					<option value="" selected="selected" disabled="disabled"  style='display: none' ></option>
-					<option :value="item.value" v-for="item in tagList" :key="item.value">{{item.label}}</option>
-				</select> -->
 				<meSelect
 					:optionList="tagList"
 					:mulite="true"
@@ -72,7 +63,14 @@
 				fileType:'',
 				fileTags:[],
 				remark:'',
-				tagList:[{label:'xxx',value:'aaa'},{label:'xxx2',value:'aaa2'}],
+				tagList:[
+					{label:'xxx',value:'aaa'},
+					{label:'xxx2',value:'aaa2'},
+					{label:'xxx3',value:'aaa3'},
+					{label:'xxx4',value:'aaa4'},
+					{label:'xxx5',value:'aaa5'},
+					{label:'xxx6',value:'aaa6'},
+				],
 				typeList:[],
 				saveFileObj:{}
 			}
@@ -89,8 +87,10 @@
 				this.saveFileObj[this.fileType].push({
 					fileName:this.fileName,
 					fileTags:this.fileTags,
+					fileType:this.fileType,
 					remark:this.remark,
-					preview:this.preview
+					preview:this.preview,
+					cover:this.getVideoBase64()
 				})
 			},
 			//点击选择文件
@@ -122,9 +122,28 @@
 				a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
 				let event = new MouseEvent('click');
 				a.dispatchEvent(event);
+			},
+			//获取视频第一帧未封面图片
+			getVideoBase64(url) {
+				return new Promise(function (resolve, reject) {
+					let dataURL = '';
+					let video = document.getElementById('video');
+					video.setAttribute('crossOrigin', 'anonymous');//处理跨域
+					video.addEventListener('loadeddata', function () {
+						let canvas = document.createElement("canvas"),
+							width = video.width, //canvas的尺寸和图片一样
+							height = video.height;
+						canvas.width = width;
+						canvas.height = height;
+						canvas.getContext("2d").drawImage(video, 0, 0, width, height); //绘制canvas
+						dataURL = canvas.toDataURL('image/png'); //转换为base64
+						resolve(dataURL);
+					});
+				})
 			}
-		}
+		},
 	}
+	
 </script>
 
 <style lang="scss">

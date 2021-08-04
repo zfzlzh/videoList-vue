@@ -29,9 +29,26 @@ $hoverGray:rgba(220,220,220,.7);
 @mixin ai-start {
 	align-items: flex-start;
 }
+@mixin wrap{
+	flex-wrap: wrap;
+}
 @mixin overSpread{
 	width:100%;
 	height:100%
+}
+@mixin borderBox{
+	box-sizing: border-box;
+}
+@mixin contentBox{
+	box-sizing: content-box;
+}
+@mixin textEllipsis{
+	overflow:hidden;
+	text-overflow:ellipsis;
+	white-space:nowrap
+}
+.bold{
+	font-weight: bold;
 }
 .flexBox{
 	@include flex;
@@ -55,6 +72,10 @@ $hoverGray:rgba(220,220,220,.7);
 .flexAroCenter{
 	@extend .flexVerCenter;
 	@include jc-aro
+}
+.flexWrap{
+	@extend .flexBox;
+	@include wrap
 }
 .cursorP{
 	cursor:pointer
@@ -82,8 +103,10 @@ $hoverGray:rgba(220,220,220,.7);
 	height:100%;
 	border:1px solid #ccc;
 	border-radius:4px;
-	padding: 0 10px;
-	@extend .flexVerCenter
+	padding: 0 15px 0 5px;
+	font-size:2vh;
+	@extend .flexVerCenter;
+	@include borderBox
 }
 select{
 	border:none;

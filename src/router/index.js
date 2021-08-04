@@ -3,6 +3,7 @@ import Router from "vue-router";
 import upload from "../views/upload.vue"
 import user from "../views/user.vue"
 import videoList from "../views/VideoList.vue"
+import videoItem from "../views/VideoItem.vue"
 Vue.use(Router);
 
 
@@ -32,6 +33,12 @@ export const router = [
 		component: videoList,
 		name: "列表",
 		meta: { title: "列表" },
+	},
+	{
+		path: "/videoItem",
+		component: videoItem,
+		name: "视频",
+		meta: { title: "视频" },
 	},
 ];
 

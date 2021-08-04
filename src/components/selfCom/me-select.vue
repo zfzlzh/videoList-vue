@@ -48,6 +48,8 @@
 				</div>
 			</meScrollbar>
 		</div>
+		<!-- 下拉符号 -->
+		<i class="icon" :class="showOptionList ? 'show' : ''" @click="showOption"></i>
 	</div>
 </template>
 
@@ -67,7 +69,15 @@
 			filterable:{
 				type:Boolean,
 				default:false
+			},
+			value:{
+				type:String | Number | Array,
+				default:''
 			}
+		},
+		model:{
+			prop:'value',
+			event:'change'
 		},
 		directives: {
 		    clickOutside
@@ -75,10 +85,20 @@
 		data(){
 			return {
 				selectedList:[],
-				selectedValue:'',
+				selectedValue:{},
 				selectedValueList:[],
 				selectedLabelList:[],
 				showOptionList:false
+			}
+		},
+		watch:{
+			value:{
+				handler(newVal){
+					let label = this.optionList.filter((val)=>{
+						return val.value == newVal
+					})
+					this.selectedValue = label.length != 0 ? label[0] : {}
+				}
 			}
 		},
 		computed:{
@@ -89,7 +109,7 @@
 				let single = document.getElementsByClassName('option-list-item')[0]
 				let hei = single.clientHeight
 				return hei * this.optionList.length + 'px'
-			}
+			},
 		},
 		components:{
 			meScrollbar
@@ -97,7 +117,7 @@
 		methods:{
 			//显示下拉数据
 			showOption(){
-				this.showOptionList = true
+				this.showOptionList = !this.showOptionList
 			},
 			//选择下拉数据
 			selectValue(item){
@@ -122,7 +142,7 @@
 				if(this.showOptionList){
 					this.showOptionList = false
 				}
-				let value = this.mulite ? this.selectedList : this.selectValue
+				let value = this.mulite ? this.selectedList : this.value
 				this.$emit('change',value)
 			},
 			//多选移除首个
@@ -144,6 +164,7 @@
 		transition:height .1s linear;
 		position: relative;
 		top: 1.5vh;
+		border-radius: 4px;
 		&::before{
 			content:'';
 			border-bottom:8px solid #ccc;
@@ -171,14 +192,51 @@
 	}
 	.option-list-item{
 		height: 4vh;
-		@extend .flexCenter;
+		@extend .flexVerCenter;
 		@extend .cursorP;
+		border-bottom:1px solid #ccc;
 		&:hover{
 			background:rgba(12,154,154,.2);
+			color:$blue
+		}
+		&.active{
+			color:$blue
 		}
 	}
 	.me-select{
-		@include overSpread
+		@include overSpread;
+		position:relative;
+		.icon{
+			position:absolute;
+			height: 100%;
+			width: 15px;
+			text-align: center;
+			transform: rotateZ(90deg);
+			cursor: pointer;
+			color: #C0C4CC;
+			font-size: 14px;
+			vertical-align: baseline;
+			top:0;
+			right:0;
+			@extend .flexCenter;
+			transition:transform .3s,-webkit-transform .3s;
+			&::after{
+				content:'>';
+				width: 15px;
+				height: 15px;
+				// transform-origin: center 43%;
+				// transform: rotate(180deg);
+				// position: absolute;
+				// top:3px;
+				// right:-1px;
+				// width: 15px;
+				// height: 100%;
+			}
+			&.show{
+				transform: rotateZ(270deg);
+			}
+		}
+		
 	}
 	.mulite-div{
 		@include overSpread
