@@ -43,6 +43,7 @@
 					v-for="item in optionList" 
 					:key="item.value" 
 					@click="selectValue(item)"
+					:class="isActive(item)"
 				>
 					{{item.label}}
 				</div>
@@ -110,6 +111,12 @@
 				let hei = single.clientHeight
 				return hei * this.optionList.length + 'px'
 			},
+			isActive(){
+				return item => {
+					return (this.mulite && this.selectedValueList.includes(item.value)) ||
+							this.selectedValue.value == item.value ? 'active' : ''
+				}
+			}
 		},
 		components:{
 			meScrollbar
@@ -194,7 +201,6 @@
 		height: 4vh;
 		@extend .flexVerCenter;
 		@extend .cursorP;
-		border-bottom:1px solid #ccc;
 		&:hover{
 			background:rgba(12,154,154,.2);
 			color:$blue

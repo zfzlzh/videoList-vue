@@ -1,8 +1,10 @@
 <template>
 	<div class="video-item">
-		<div class="back">
+		<!-- 返回上一页 -->
+		<div class="back" @click="backList">
 			<i class="fas fa-reply"></i>
 		</div>
+		<!-- 视频信息 -->
 		<div class="info">
 			<div class="info-name">
 				<span>名称：</span>
@@ -29,9 +31,11 @@
 				<span>{{info.remark}}</span>
 			</div>
 		</div>
+		<!-- 视频 -->
 		<div class="video">
 			<videoPlayer></videoPlayer>
 		</div>
+		<!-- 上传者信息 -->
 		<div class="uploader">
 			<div class="uploader-cover">
 				<img :src="uploader.cover" alt="">
@@ -46,8 +50,7 @@
 					<span>视频</span>
 				</div>
 				<div class="uploader-remark">
-					<span>个人简介：</span>
-					<span>{{uploader.remark}}</span>
+					<span>>>点击进入空间查看</span>
 				</div>
 			</div>
 		</div>
@@ -70,7 +73,6 @@
 				uploader:{
 					name:'adfasf',
 					total:0,
-					remark:'',
 					cover:''
 				},
 				preview:''
@@ -86,6 +88,9 @@
 		methods:{
 			searchVideo(){
 				
+			},
+			backList(){
+				this.$router.go(-1)
 			}
 		}
 	}
@@ -147,6 +152,9 @@
 				text-align: left;
 				@extend .flexVerCenter
 			}
+		}
+		.uploader-remark{
+			font-size:1vh
 		}
 	}
 </style>

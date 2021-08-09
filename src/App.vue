@@ -28,6 +28,7 @@ export default {
 			//苹果、谷歌内核
 			browser = "Chrome";
 		} 
+		browser = userAgent.indexOf('Mobile') > -1 ? browser + 'Mobile' : browser
 		this.$store.commit('setBrowser',browser)
   }
 }
