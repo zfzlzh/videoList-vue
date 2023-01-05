@@ -182,7 +182,7 @@
 			border-bottom-right-radius:0;
 		}
 	}
-	/deep/ .search-form-select{
+	:deep(.search-form-select){
 		width:25%;
 		height:100%;
 		.form-input-item{

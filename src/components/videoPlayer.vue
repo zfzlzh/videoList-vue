@@ -2,7 +2,6 @@
 	<div class="video-player" ref="videoPlayer" :style="isMobileFullScreen">
 		<!-- 视频 -->
 		<video :src="preview" class="form-input-item" :id="videoId">
-			
 		</video>
 		<!-- 操作栏 -->
 		<div class="player-controls">
@@ -43,6 +42,13 @@
 	import screenFull from "../untils/screenFull.js"
 	export default {
 		mixins:[ screenFull ],
+		props:{
+			//视频地址
+			preview:{
+				type:String,
+				default:''
+			}
+		},
 		data(){
 			return{
 				//视频当前时间,转化
@@ -53,8 +59,6 @@
 				inLoading:false,
 				//是否暂停
 				isPaused:true,
-				//视频地址
-				preview:'',
 				//视频示例
 				video:'',
 				//进度条总长

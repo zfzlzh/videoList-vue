@@ -33,7 +33,7 @@
 		</div>
 		<!-- 视频 -->
 		<div class="video">
-			<videoPlayer></videoPlayer>
+			<videoPlayer :preview="preview"></videoPlayer>
 		</div>
 		<!-- 上传者信息 -->
 		<div class="uploader">
@@ -87,7 +87,12 @@
 		},
 		methods:{
 			searchVideo(){
-				
+				// 返回数据流需要携带返回头responseType: 'arraybuffer'
+				this.$axios.get('/videos/getVideo',{params:{type:'json',id:0}},{ responseType: 'arraybuffer' }).then((res)=>{
+					let dom = new Blob([res.data],{type: 'video/*;charset=UTF-8'})
+					console.log(dom)
+					this.preview =  window.URL.createObjectURL(dom)
+				})
 			},
 			backList(){
 				this.$router.go(-1)

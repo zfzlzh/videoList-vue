@@ -7,7 +7,11 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "axios": "^0.24.0",
     "core-js": "^2.6.5",
+    "jszip": "^3.7.1",
+    "sass": "^1.57.1",
+    "sass-loader": "10.0.1",
     "vant": "^2.12.25",
     "vue": "^2.6.10",
     "vue-router": "^3.0.1",
@@ -17,8 +21,6 @@
     "@fortawesome/fontawesome-free": "^5.15.3",
     "@vue/cli-plugin-babel": "^3.8.0",
     "@vue/cli-service": "^3.8.0",
-    "node-sass": "^4.14.1",
-    "sass-loader": "^7.3.1",
     "style-loader": "^3.2.1",
     "style-resources-loader": "^1.4.1",
     "vue-cli-plugin-style-resources-loader": "~0.1.5",

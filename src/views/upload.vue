@@ -7,44 +7,62 @@
 				<input type="file" class="form-input" id="fileField" @change="changeFile" v-show="false" />
 			</div>
 		</div>
-		<div class="form-item">
-			<span>名称：</span>
-			<div class="form-input">
-				<input type="text" class="form-input-item" :value="fileName" />
-			</div>
-		</div>
-		<div class="form-item">
-			<span>预览：</span>
-			<div class="form-input video">
-				<video :src="preview" controls class="form-input-item" id="video">
-					
-				</video>
-			</div>
-		</div>
-		<div class="form-item">
-			<span>类型：</span>
-			<div class="form-input">
-				<meSelect
-					:optionList="typeList"
-				>
-				</meSelect>
-			</div>
-		</div>
-		<div class="form-item">
-			<span>标签：</span>
-			<div class="form-input">
-				<meSelect
-					:optionList="tagList"
-					:mulite="true"
-				>
-				</meSelect>
-			</div>
-		</div>
-		<div class="form-item">
-			<span>描述：</span>
-			<div class="form-input">
-				<input type="textarea" :value="remark" class="form-input-item">
-			</div>
+		<div class="info-content">
+			<meScrollbar>
+				<div class="info-content-item" v-for="item in videoList" :key="item.index">
+					<div class="form-item">
+						<span>名称：</span>
+						<div class="form-input">
+							<input type="text" class="form-input-item" :value="item.fileName" />
+						</div>
+					</div>
+					<div class="form-item">
+						<span>预览：</span>
+						<div class="form-input video">
+							<video :src="item.preview" controls class="form-input-item" :id="'video' + item.index">
+								
+							</video>
+						</div>
+					</div>
+					<div class="form-item">
+						<span>类型：</span>
+						<div class="form-input">
+							<meSelect
+								:optionList="typeList"
+								v-model="item.fileType"
+							>
+							</meSelect>
+						</div>
+					</div>
+					<div class="form-item">
+						<span>地区：</span>
+						<div class="form-input">
+							<meSelect
+								:optionList="regionList"
+								v-model="item.regionId"
+							>
+							</meSelect>
+						</div>
+					</div>
+					<div class="form-item">
+						<span>标签：</span>
+						<div class="form-input">
+							<meSelect
+								:optionList="tagList"
+								v-model="item.fileTags"
+								:mulite="true"
+							>
+							</meSelect>
+						</div>
+					</div>
+					<div class="form-item">
+						<span>描述：</span>
+						<div class="form-input">
+							<input type="textarea" :value="item.remark" class="form-input-item">
+						</div>
+					</div>
+				</div>
+			</meScrollbar>
 		</div>
 		<div class="btn-div">
 			<div @click="saveFile" class="button save">保存</div>
@@ -55,14 +73,11 @@
 
 <script>
 	import meSelect from '../components/selfCom/me-select.vue'
+	import meScrollbar from '../components/selfCom/me-scrollbar.vue'
+	import JsZip from "jszip"
 	export default{
 		data(){
 			return{
-				preview:'',
-				fileName:'',
-				fileType:'',
-				fileTags:[],
-				remark:'',
 				tagList:[
 					{label:'xxx',value:'aaa'},
 					{label:'xxx2',value:'aaa2'},
@@ -72,25 +87,38 @@
 					{label:'xxx6',value:'aaa6'},
 				],
 				typeList:[],
-				saveFileObj:{}
+				regionList:[],
+				saveFileObj:{},
+				videoTypeList:[
+					"avi","wmv","mpg","mpeg","mov","rm","ram","swf","flv","mp4","mp3","wma","avi","rm","rmvb","flv","mpg","mkv"
+				],
+				videoList:[]
 			}
 		},
 		components:{
-			meSelect
+			meSelect,
+			meScrollbar
 		},
 		methods:{
 			//保存文件数据
 			saveFile(){
-				if(!this.saveFileObj[this.fileType]){
-					this.saveFileObj[this.fileType] = []
-				}
-				this.saveFileObj[this.fileType].push({
-					fileName:this.fileName,
-					fileTags:this.fileTags,
-					fileType:this.fileType,
-					remark:this.remark,
-					preview:this.preview,
-					cover:this.getVideoBase64()
+				this.videoList.forEach((val)=>{
+					if(!this.saveFileObj[val.fileType]){
+						this.saveFileObj[val.fileType] = []
+					}
+					this.saveFileObj[val.fileType].push({
+						fileName:val.fileName,
+						fileTags:val.fileTags,
+						fileType:val.fileType,
+						remark:val.remark,
+						preview:val.preview,
+						regionId:val.regionId,
+						cover:this.getVideoBase64(val.index)
+					})
+					localStorage.setItem('videoPreview',val.preview)
+				})
+				this.$axios.post('/videos/createJson',{videoList:this.saveFileObj}).then((res)=>{
+					console.log(res)
 				})
 			},
 			//点击选择文件
@@ -99,10 +127,53 @@
 			},
 			//选择文件获取地址
 			changeFile(e){
+				console.log(e)
 				let dom = e.srcElement.files[0]
+				if(dom.type == 'application/zip'){
+					// 读取zip
+					JsZip.loadAsync(dom).then((zip) => {
+						console.log(zip)
+						// 循环文件数组
+						Object.values(zip.files).forEach((item)=>{
+							// 将每个视频文件都转化为blob，用于创建视频地址
+							let nameEnd = item.name.split('.')[1]
+							if(nameEnd && this.videoTypeList.includes(nameEnd)){
+								zip.file(item.name).async("blob").then((blob)=>{
+									this.getFileUrl(blob,item.name)
+								})
+							}
+						})
+						
+					});
+				}else{
+					this.getFileUrl(dom)
+					var formData = new FormData();
+					formData.append('muliteVideos', dom);
+					this.$axios.post('/videos/uploadFile',formData).then((res)=>{
+						console.log(res)
+					})
+				}
+				
+			},
+			getFileUrl(dom,name){
+				//dom为file对象、blob对象或者MediaSource 对象
 				let src = window.URL.createObjectURL(dom)
-				this.fileName = dom.name
-				this.preview = src
+				console.log(dom)
+				// this.fileName = dom.name
+				// this.preview = src
+				let index = this.videoList[this.videoList.length - 1] ? this.videoList[this.videoList.length - 1].index + 1 : 0
+				this.videoList.push(
+					{
+						preview:src,
+						fileName:dom.name ? dom.name : name ? name : '视频' + Math.ceil(Math.random() * 10000),
+						fileType:'',
+						fileTags:[],
+						regionId:'',
+						remark:'',
+						index
+					}
+				)
+				console.log(this.videoList)
 			},
 			//选择类型
 			changeType(e){
@@ -114,20 +185,27 @@
 			},
 			//导出json
 			exportJson(res,fileName){
-				let data = typeof res == 'object' ? JSON.stringify(res,undefined,4) : data
-				let blob = new Blob([data], { type: "text/json" })
-				let a = document.createElement("a")
-				a.download = fileName ? fileName : 'export.json'
-				a.href = window.URL.createObjectURL(blob);
-				a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
-				let event = new MouseEvent('click');
-				a.dispatchEvent(event);
+				this.$axios.post('/files/localFileToJson',{
+					path:'E:\\AOS\\IoT\\SourceCode\\Frontend\\aos-portal-webui\\src\\views\\dashBoard',
+					name:'test'
+				}).then((res)=>{
+
+				})
+				// console.log(res)
+				// let data = typeof this.saveFileObj == 'object' ? JSON.stringify(this.saveFileObj,undefined,4) : this.saveFileObj
+				// let blob = new Blob([data], { type: "text/json" })
+				// let a = document.createElement("a")
+				// a.download = fileName ? fileName : 'export.json'
+				// a.href = window.URL.createObjectURL(blob);
+				// a.dataset.downloadurl = ["text/json", a.download, a.href].join(":");
+				// let event = new MouseEvent('click');
+				// a.dispatchEvent(event);
 			},
 			//获取视频第一帧未封面图片
-			getVideoBase64(url) {
+			getVideoBase64(index) {
 				return new Promise(function (resolve, reject) {
 					let dataURL = '';
-					let video = document.getElementById('video');
+					let video = document.getElementById('video' + index);
 					video.setAttribute('crossOrigin', 'anonymous');//处理跨域
 					video.addEventListener('loadeddata', function () {
 						let canvas = document.createElement("canvas"),
@@ -147,6 +225,16 @@
 </script>
 
 <style lang="scss">
+	.info-content{
+		width:100%;
+		// @include flex;
+		// overflow: hidden
+		.info-content-item{
+			padding:20px;
+			border-top:1px solid #ccc;
+			border-bottom:1px solid #ccc
+		}
+	}
 	.upload-file{
 		@extend .flexVerCenter;
 		flex-direction: column;
